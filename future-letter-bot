@@ -1,0 +1,7 @@
+future-letter-bot/
+│
+├── bot.py
+├── requirements.txt
+├── render.yaml
+├── Procfile
+└── .env.example
