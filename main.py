@@ -1,32 +1,43 @@
+import logging
+from aiogram import Bot, Dispatcher, executor, types
+import openai
 import os
-import telebot
-from datetime import datetime
 
-TOKEN = os.getenv("BOT_TOKEN", "ВСТАВЬ_СВОЙ_ТОКЕН_ОТСЮДА")  # замени на свой токен
+# Вставь сюда свой токен от Telegram
+BOT_TOKEN = 7000374618:AAEYOKpZKyV-nkelONeNnt4H2r-AimCstWE
+# Вставь сюда свой OpenAI API-ключ
+OPENAI_API_KEY = сюда_вставь_свой_openAI_API_KEY"
 
-bot = telebot.TeleBot(TOKEN)
+openai.api_key = OPENAI_API_KEY
 
-user_messages = {}
+# Настройки логирования
+logging.basicConfig(level=logging.INFO)
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "Привет 👋 Это бот «Письма себе».\nНапиши сюда письмо самому себе, я сохраню его и отправлю тебе обратно через время ⏳")
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
 
-@bot.message_handler(commands=['read'])
-def read_letter(message):
-    chat_id = message.chat.id
-    if chat_id in user_messages:
-        bot.reply_to(message, f"📬 Вот твоё письмо:\n\n{user_messages[chat_id]['text']}\n\n✉️ Написано: {user_messages[chat_id]['time']}")
-    else:
-        bot.reply_to(message, "У тебя пока нет писем. Напиши новое!")
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    await message.answer("Привет! 👋 Я бот 'Письма себе'. Напиши мне сообщение — и я помогу тебе разобраться в себе.")
 
-@bot.message_handler(func=lambda message: True)
-def save_letter(message):
-    chat_id = message.chat.id
-    user_messages[chat_id] = {
-        "text": message.text,
-        "time": datetime.now().strftime("%d.%m.%Y %H:%M")
-    }
-    bot.reply_to(message, "✏️ Я сохранил твоё письмо. Позже сможешь его прочитать командой /read.")
+@dp.message_handler()
+async def talk_with_ai(message: types.Message):
+    user_text = message.text
 
-bot.polling()
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Ты — тёплый, вдумчивый собеседник. Помогай пользователю понять себя, поддерживай и задавай мягкие вопросы."},
+                {"role": "user", "content": user_text}
+            ]
+        )
+
+        reply = response.choices[0].message["content"]
+        await message.answer(reply)
+
+    except Exception as e:
+        await message.answer("Произошла ошибка 😔 Попробуй позже.")
+
+if __name__ == "__main__":
+    executor.start_polling(dp, skip_updates=True)
