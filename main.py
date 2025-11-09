@@ -4,9 +4,10 @@ import openai
 import os
 
 # Вставь сюда свой токен от Telegram
-BOT_TOKEN = 7000374618:AAEYOKpZKyV-nkelONeNnt4H2r-AimCstWE
+BOT_TOKEN = "7000374618:AAEYOKpZKyV-nkelONeNnt4H2r-AimCstWE"
+
 # Вставь сюда свой OpenAI API-ключ
-OPENAI_API_KEY = сюда_вставь_свой_openAI_API_KEY"
+OPENAI_API_KEY = ""
 
 openai.api_key = OPENAI_API_KEY
 
